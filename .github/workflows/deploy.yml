@@ -1,34 +1,50 @@
-# Деплой по кнопке. ВЫКЛЮЧЕН по умолчанию: запускается только вручную (Actions → Deploy → Run workflow)
-# и только если в Settings → Variables задана переменная DEPLOY_ENABLED = true.
-# Секреты (Settings → Secrets): DEPLOY_SSH_KEY (приватный ключ), DEPLOY_KNOWN_HOSTS (ssh-keyscan сервера),
-# DEPLOY_USER, DEPLOY_HOST. Необязательно: переменная DEPLOY_PORT.
+# Автодеплой сайта: каждый push (слияние PR) в main → сборка, тесты → выкладка на сервер.
+# Тот же сервер и те же имена секретов, что у бота (Settings → Secrets and variables → Actions):
+#   SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, необязательно SSH_PORT.
+# Пока секреты не заданы, деплой пропускается (сборка и тесты всё равно проверяются).
 name: Deploy
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency: deploy
 
 jobs:
   deploy:
-    if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Проверка сборки
+        run: npm ci && npm test && npm run build && node scripts/check-csp.mjs
       - name: SSH
+        if: env.SSH_HOST != ''
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
         run: |
           install -m 700 -d ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-      - name: Build and deploy
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          printf 'Host %s\n  IdentityFile ~/.ssh/id_deploy\n' "$SSH_HOST" > ~/.ssh/config
+      - name: Выкладка
+        if: env.SSH_HOST != ''
         env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
-          CADDY_CONTAINER: ${{ vars.CADDY_CONTAINER || 'ai-project-agent-caddy-1' }}
+          DEPLOY_HOST: ${{ secrets.SSH_HOST }}
+          DEPLOY_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PORT: ${{ secrets.SSH_PORT || '22' }}
+          CADDY_CONTAINER: ai-project-agent-caddy-1
+          SKIP_BUILD: '1'
         run: ./deploy/deploy.sh
+      - name: Секреты не заданы
+        if: env.SSH_HOST == ''
+        run: echo "::notice::Деплой пропущен — задайте секреты SSH_HOST, SSH_USER, SSH_PRIVATE_KEY (docs/deploy.md)"

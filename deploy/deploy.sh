@@ -14,10 +14,13 @@ REMOTE="/opt/lossmap"
 TARGET="$DEPLOY_USER@$DEPLOY_HOST"
 SSH="ssh -p $PORT"
 
-npm ci
-npm test
-npm run build
-node scripts/check-csp.mjs
+# В CI сборка уже проверена отдельным шагом — SKIP_BUILD=1 не повторяет её.
+if [[ "${SKIP_BUILD:-}" != "1" ]]; then
+  npm ci
+  npm test
+  npm run build
+  node scripts/check-csp.mjs
+fi
 
 # Папки, бэкап текущей версии. rsync пишет внутрь существующих папок —
 # их нельзя пересоздавать/переименовывать: они смонтированы в контейнер Caddy.
