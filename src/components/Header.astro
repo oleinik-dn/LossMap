@@ -21,13 +21,15 @@ import { site, calUrl } from '../lib/links';
 
 <style>
   .hdr { position: sticky; top: 0; z-index: 50; background: rgba(11, 15, 20, .92); border-bottom: 1px solid transparent; }
-  .hdr-in { display: flex; align-items: center; gap: 16px 28px; padding-block: 18px; }
-  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 800 22px/1 var(--font-head); letter-spacing: -0.02em; color: var(--text); margin-right: auto; }
+  .hdr-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 24px; }
+  @media (max-width: 960px) { .hdr-in { padding-block: 16px; } }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 800 22px/1 var(--font-head); letter-spacing: -0.02em; color: var(--text); }
   .nav { display: flex; flex-wrap: wrap; gap: 28px; font-size: 15px; font-weight: 500; }
   .nav a { text-decoration: none; }
   .burger { display: none; background: none; border: 1px solid var(--border-2); border-radius: var(--radius); color: var(--text); padding: 9px; cursor: pointer; }
   @media (max-width: 960px) {
     .hdr-in { flex-wrap: wrap; }
+    .logo { margin-right: auto; }
     .burger { display: inline-flex; order: 2; }
     .hdr-cta { order: 1; }
     .nav { display: none; order: 3; width: 100%; flex-direction: column; gap: 0; padding-top: 8px; }

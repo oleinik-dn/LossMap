@@ -13,6 +13,7 @@ const { title = site.title, description = site.description } = Astro.props;
 <html lang={site.lang}>
   <head>
     <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add('js')</script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />

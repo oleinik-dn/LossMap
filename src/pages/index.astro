@@ -1,8 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import ResultsStrip from '../components/ResultsStrip.astro';
 ---
 <Base>
-  <section class="section container" id="contact">
-    <p class="eyebrow">Каркас · этап 1</p>
-  </section>
+  <Hero />
+  <ResultsStrip />
+  <section class="section container" id="contact"></section>
 </Base>
+
+<script>
+  import '../scripts/reveal';
+  import '../scripts/counters';
+</script>

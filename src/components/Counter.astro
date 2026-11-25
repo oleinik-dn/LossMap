@@ -1,0 +1,10 @@
+---
+/** Число, которое досчитывает от 0 до значения при появлении (scripts/counters.ts).
+ *  В HTML сразу финальное значение — без JS и при reduced-motion всё корректно. */
+interface Props { value: number; from?: number; delay?: number; decimals?: number; prefix?: string; suffix?: string; class?: string }
+const { value, from = 0, delay = 0, decimals = 0, prefix = '', suffix = '', class: cls = '' } = Astro.props;
+const fmt = (v: number) => v.toFixed(decimals).replace('.', ',');
+const final = `${prefix}${fmt(value)}${suffix}`;
+---
+<span class:list={['mono', 'counter', cls]} data-count={value} data-from={from} data-delay={delay} data-decimals={decimals}
+  data-prefix={prefix} data-suffix={suffix} style={`min-width:${[...final].length}ch`}>{final}</span>

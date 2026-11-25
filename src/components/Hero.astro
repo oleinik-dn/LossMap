@@ -1,0 +1,38 @@
+---
+import ParetoChart from './ParetoChart.astro';
+import hero from '../content/ru/hero.json';
+import { site, calUrl } from '../lib/links';
+---
+<section class="hero container" aria-labelledby="hero-h1">
+  <div class="h-copy">
+    <p class="h-eyebrow">
+      <span class="live" aria-hidden="true"></span>
+      {hero.eyebrow}
+    </p>
+    <h1 id="hero-h1">{hero.h1}</h1>
+    <p class="h-sub">{hero.sub}</p>
+    <div class="h-cta">
+      <a class="btn btn-primary" href={calUrl} data-cal>{site.cta.main}</a>
+      <a class="btn btn-ghost" href={site.links.demo} target="_blank" rel="noopener">{hero.ctaDemo}</a>
+    </div>
+  </div>
+  <ParetoChart />
+</section>
+
+<style>
+  .hero { padding-top: 64px; padding-bottom: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr)); gap: 64px; align-items: center; }
+  .h-copy { display: flex; flex-direction: column; gap: 28px; }
+  .h-eyebrow { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .live { width: 8px; height: 8px; border-radius: 50%; background: var(--gain); flex: none; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+  h1 { font-weight: 800; font-size: 60px; line-height: 1.04; letter-spacing: -0.03em; }
+  .h-sub { font-size: 19px; line-height: 1.55; color: var(--text-2); max-width: 560px; }
+  .h-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  @media (max-width: 640px) {
+    .hero { padding-top: 32px; gap: 40px; }
+    h1 { font-size: 36px; }
+    .h-sub { font-size: 17px; }
+    .h-copy { gap: 22px; }
+    .h-cta .btn { width: 100%; }
+  }
+</style>
