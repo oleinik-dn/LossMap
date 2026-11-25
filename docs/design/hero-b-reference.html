@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>LossMap — первый экран, тёмный</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0F14}
+a{color:#E8EBEF}a:hover{color:#2DD4BF}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hb{transform-origin:left;animation:grow .9s cubic-bezier(.2,.7,.2,1) both}
+.d1{animation-delay:.2s}.d2{animation-delay:.45s}.d3{animation-delay:.7s}.d4{animation-delay:.95s}.d5{animation-delay:1.2s}
+.live{animation:pulse 1.6s ease-in-out infinite}
+.fade{animation:fade .6s ease-out both}.f6{animation-delay:1.7s}
+.lm-dots{background-image:radial-gradient(rgba(154,163,174,.18) 1px,transparent 1px);background-size:24px 24px}
+</style>
+</helmet>
+<div class="lm-dots" style="min-height: 900px; box-sizing: border-box; font-family: Inter, system-ui, sans-serif; color: #E8EBEF; background-color: #0B0F14; display: flex; flex-direction: column">
+  <header style="max-width: 1280px; width: 100%; margin: 0 auto; box-sizing: border-box; padding: 24px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+    <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: Manrope, sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; color: #E8EBEF">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="6" fill="none" stroke="#E8EBEF" stroke-width="2"></rect><rect x="7" y="15" width="3" height="7" fill="#E8EBEF"></rect><rect x="12.5" y="10" width="3" height="5" fill="#F59E0B"></rect><rect x="18" y="7" width="3" height="15" fill="#2DD4BF"></rect></svg>
+      LossMap
+    </a>
+    <nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 28px; font-size: 15px; font-weight: 500">
+      <a href="#" style="text-decoration: none">Услуги</a>
+      <a href="#" style="text-decoration: none">Кейсы</a>
+      <a href="#" style="text-decoration: none">Как работаем</a>
+      <a href="#" style="text-decoration: none">Стоимость</a>
+      <a href="#" style="text-decoration: none">Вопросы</a>
+    </nav>
+    <a href="#" style="text-decoration: none; font-size: 15px; font-weight: 600; padding: 12px 20px; border-radius: 10px; background: #2DD4BF; color: #0B0F14">Записаться на разбор</a>
+  </header>
+
+  <main style="flex: 1">
+    <section style="max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding: 64px 32px 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr)); gap: 64px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 28px">
+        <div style="display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: #9AA3AE">
+          <span class="live" style="width: 8px; height: 8px; border-radius: 50%; background: #2DD4BF; display: inline-block"></span>
+          Аудит потерь · пищевые производства · СНГ
+        </div>
+        <h1 style="margin: 0; font-family: Manrope, sans-serif; font-weight: 800; font-size: 60px; line-height: 1.04; letter-spacing: -0.03em">Ваши данные уже знают, где&nbsp;теряются деньги</h1>
+        <p style="margin: 0; font-size: 19px; line-height: 1.55; color: #B8C0CA; max-width: 560px">Мы разбираем выгрузки из 1С, Excel и журналов смен, находим первопричины простоев и брака — и вместе с вашей командой доводим их до денег. Первые цифры — на бесплатном 20-минутном разборе.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px">
+          <a href="#" style="text-decoration: none; background: #2DD4BF; color: #0B0F14; font-weight: 600; font-size: 16px; padding: 16px 24px; border-radius: 10px">Записаться на 20-минутный разбор</a>
+          <a href="https://demo.uchetprostoev.ru" style="text-decoration: none; font-weight: 600; font-size: 16px; padding: 16px 24px; border-radius: 10px; border: 1.5px solid #2E3742; color: #E8EBEF">Открыть демо учёта простоев</a>
+        </div>
+      </div>
+
+      <figure style="margin: 0; background: #121820; border: 1px solid #222B36; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 22px">
+        <figcaption style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+          <span style="font-family: Manrope, sans-serif; font-weight: 700; font-size: 18px">Парето простоев · линия 2</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AE">пример · мин за смену</span>
+        </figcaption>
+        <div role="img" aria-label="Парето простоев: переналадки 34 минуты, ожидание сырья 22, микроостановки 18, поломки 14, прочее 8; всего 96 минут за смену" style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px; gap: 12px; align-items: center; font-size: 14px">
+            <span style="color: #B8C0CA">Переналадки</span>
+            <div style="height: 14px; background: #1A222C; border-radius: 3px"><div class="hb d1" style="width: 100%; height: 14px; background: #F59E0B; border-radius: 3px"></div></div>
+            <span style="font-family: 'JetBrains Mono', monospace; text-align: right">34</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px; gap: 12px; align-items: center; font-size: 14px">
+            <span style="color: #B8C0CA">Ожидание сырья</span>
+            <div style="height: 14px; background: #1A222C; border-radius: 3px"><div class="hb d2" style="width: 65%; height: 14px; background: #F59E0B; border-radius: 3px"></div></div>
+            <span style="font-family: 'JetBrains Mono', monospace; text-align: right">22</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px; gap: 12px; align-items: center; font-size: 14px">
+            <span style="color: #B8C0CA">Микроостановки</span>
+            <div style="height: 14px; background: #1A222C; border-radius: 3px"><div class="hb d3" style="width: 53%; height: 14px; background: #D97F06; border-radius: 3px"></div></div>
+            <span style="font-family: 'JetBrains Mono', monospace; text-align: right">18</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px; gap: 12px; align-items: center; font-size: 14px">
+            <span style="color: #B8C0CA">Поломки</span>
+            <div style="height: 14px; background: #1A222C; border-radius: 3px"><div class="hb d4" style="width: 41%; height: 14px; background: #B86A08; border-radius: 3px"></div></div>
+            <span style="font-family: 'JetBrains Mono', monospace; text-align: right">14</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 44px; gap: 12px; align-items: center; font-size: 14px">
+            <span style="color: #B8C0CA">Прочее</span>
+            <div style="height: 14px; background: #1A222C; border-radius: 3px"><div class="hb d5" style="width: 24%; height: 14px; background: #8A5309; border-radius: 3px"></div></div>
+            <span style="font-family: 'JetBrains Mono', monospace; text-align: right">8</span>
+          </div>
+        </div>
+        <div class="fade f6" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border-top: 1px solid #222B36; padding-top: 18px">
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #9AA3AE">OEE</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600">59%</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #9AA3AE">Потери за смену</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600; color: #F59E0B">197 мин</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #9AA3AE">В деньгах</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600; color: #2DD4BF">€ [ваша]/год</span></div>
+        </div>
+      </figure>
+    </section>
+  </main>
+
+  <section aria-label="Результаты команды" style="max-width: 1280px; width: 100%; margin: 0 auto; box-sizing: border-box; padding: 28px 32px 40px; border-top: 1px solid #1C242E; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 600; color: #2DD4BF">×2,7</span><span style="font-size: 14px; color: #9AA3AE">эффект к цели за год, пищевое производство, 10+ линий</span></div>
+    <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 600">74 → 80%</span><span style="font-size: 14px; color: #9AA3AE">рост OEE на том же оборудовании</span></div>
+    <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 600">−32%</span><span style="font-size: 14px; color: #9AA3AE">трудоёмкость на тонну продукции</span></div>
+    <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 600">100%</span><span style="font-size: 14px; color: #9AA3AE">эффекта сверено с финслужбой клиента</span></div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
