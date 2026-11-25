@@ -1,0 +1,44 @@
+---
+import SectionHead from './SectionHead.astro';
+import d from '../content/ru/pricing.json';
+import { site, calUrl } from '../lib/links';
+---
+<section class="section container" id="pricing" aria-labelledby="pricing-h">
+  <SectionHead id="pricing-h" eyebrow={d.eyebrow} title={d.title} lead={d.lead} />
+  <ul class="price">
+    {d.items.map((p) => (
+      <li class="pr-row">
+        <div class="pr-name">
+          <h3>{p.title}</h3>
+          <p class="pr-price mono">{p.price}</p>
+          {p.priceNote && <p class="pr-note">{p.priceNote}</p>}
+        </div>
+        <div class="pr-body">
+          <p>{p.text}</p>
+          {p.tiers && <ul class="pr-tiers">{p.tiers.map((t) => <li class="mono">{t}</li>)}</ul>}
+        </div>
+      </li>
+    ))}
+  </ul>
+  <div class="pr-foot">
+    <p class="pr-net">{d.note}</p>
+    <a class="btn btn-primary" href={calUrl} data-cal>{site.cta.main}</a>
+  </div>
+</section>
+
+<style>
+  .price { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+  .pr-row { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px 40px; padding: 24px 28px; border-top: 1px solid var(--border); }
+  .pr-row:first-child { border-top: 0; }
+  .pr-name { display: flex; flex-direction: column; gap: 6px; }
+  .pr-price { font-size: 20px; font-weight: 600; }
+  .pr-note { font-size: 14px; color: var(--muted); }
+  .pr-body p { color: var(--text-2); font-size: 15px; }
+  .pr-tiers { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--text); }
+  .pr-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; }
+  .pr-net { color: var(--muted); font-size: 15px; }
+  @media (max-width: 720px) {
+    .pr-row { grid-template-columns: 1fr; padding: 20px; }
+    .pr-foot .btn { width: 100%; }
+  }
+</style>

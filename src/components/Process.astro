@@ -1,0 +1,31 @@
+---
+import SectionHead from './SectionHead.astro';
+import d from '../content/ru/process.json';
+---
+<section class="section container" id="process" aria-labelledby="process-h">
+  <SectionHead id="process-h" eyebrow={d.eyebrow} title={d.title} />
+  <ol class="proc">
+    {d.items.map((s, i) => (
+      <li>
+        <div class="p-top">
+          <span class="p-n mono">{i + 1}</span>
+          <span class="p-dur mono">{s.duration}</span>
+        </div>
+        <h3>{s.title}</h3>
+        <p>{s.text}</p>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .proc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+  .proc li { display: flex; flex-direction: column; gap: 12px; padding-top: 20px; border-top: 2px solid var(--border-2); }
+  .proc li:first-child { border-top-color: var(--gain); }
+  .p-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .p-n { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--border-2); display: grid; place-items: center; font-weight: 600; }
+  .p-dur { font-size: 13px; color: var(--muted); }
+  .proc p { font-size: 15px; color: var(--text-2); }
+  @media (max-width: 960px) { .proc { grid-template-columns: 1fr 1fr; row-gap: 36px; } }
+  @media (max-width: 560px) { .proc { grid-template-columns: 1fr; } }
+</style>

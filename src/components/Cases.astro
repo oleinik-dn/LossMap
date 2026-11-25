@@ -1,0 +1,51 @@
+---
+import SectionHead from './SectionHead.astro';
+import T from './T.astro';
+import d from '../content/ru/cases.json';
+---
+<section class="section container" id="cases" aria-labelledby="cases-h">
+  <SectionHead id="cases-h" eyebrow={d.eyebrow} title={d.title} lead={d.lead} />
+  <div class="cases">
+    {d.items.map((c, i) => (
+      <article class="case card" aria-labelledby={`case-${i}`}>
+        <header class="c-head">
+          <span class="c-n mono">Кейс {i + 1}</span>
+          <h3 id={`case-${i}`}>{c.sector}</h3>
+          <p class="c-scale"><T v={c.scale} /></p>
+        </header>
+        <ul class="c-metrics" aria-label={d.labels.result}>
+          {c.metrics.map((m) => (
+            <li>
+              <span class:list={['c-val', 'mono', m.accent && 'c-gain']}>{m.value}</span>
+              <span class="c-lbl">{m.label}</span>
+            </li>
+          ))}
+        </ul>
+        {'note' in c && c.note && <p class="c-note">{c.note}</p>}
+        <dl class="c-dl">
+          <div><dt>{d.labels.task}</dt><dd><T v={c.task} /></dd></div>
+          <div><dt>{d.labels.done}</dt><dd><T v={c.done} /></dd></div>
+          <div><dt>{d.labels.role}</dt><dd><T v={c.role} /></dd></div>
+        </dl>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+  .case { display: flex; flex-direction: column; gap: 22px; }
+  .c-head { display: flex; flex-direction: column; gap: 6px; }
+  .c-n { font-size: 13px; color: var(--muted); }
+  .c-scale { font-size: 14px; color: var(--muted); }
+  .c-metrics { list-style: none; margin: 0; padding: 18px 0; border-block: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .c-metrics li { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .c-val { font-size: 21px; font-weight: 600; line-height: 1.3; white-space: nowrap; }
+  .c-note { margin-top: -8px; font-size: 14px; color: var(--text-2); }
+  .c-gain { color: var(--gain); }
+  .c-lbl { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  @media (max-width: 420px) { .c-val { font-size: 18px; white-space: normal; } .case { padding: 22px; } }
+  .c-dl { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+  .c-dl dt { font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .c-dl dd { margin: 4px 0 0; font-size: 15px; color: var(--text-2); }
+</style>

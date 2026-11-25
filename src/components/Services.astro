@@ -1,0 +1,28 @@
+---
+import SectionHead from './SectionHead.astro';
+import d from '../content/ru/services.json';
+---
+<section class="section container" id="services" aria-labelledby="services-h">
+  <SectionHead id="services-h" eyebrow={d.eyebrow} title={d.title} lead={d.lead} />
+  <ul class="svc">
+    {d.items.map((s, i) => (
+      <li class="card">
+        <span class="svc-n mono">0{i + 1}</span>
+        <h3>{s.title}</h3>
+        <p class="svc-price mono">{s.price}</p>
+        <p class="svc-text">{s.text}</p>
+        <ul class="svc-points">{s.points.map((p) => <li>{p}</li>)}</ul>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .svc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 16px; }
+  .svc > li { display: flex; flex-direction: column; gap: 12px; }
+  .svc-n { font-size: 13px; color: var(--muted); }
+  .svc-price { font-size: 15px; font-weight: 600; color: var(--text); }
+  .svc-text { font-size: 15px; color: var(--text-2); }
+  .svc-points { list-style: none; margin: auto 0 0; padding: 8px 0 0; }
+  .svc-points li { font-size: 14px; color: var(--muted); padding: 8px 0; border-top: 1px solid var(--border); }
+</style>

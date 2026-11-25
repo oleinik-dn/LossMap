@@ -1,0 +1,27 @@
+---
+import SectionHead from './SectionHead.astro';
+import d from '../content/ru/faq.json';
+---
+<section class="section container" id="faq" aria-labelledby="faq-h">
+  <SectionHead id="faq-h" eyebrow={d.eyebrow} title={d.title} />
+  <div class="faq">
+    {d.items.map((f) => (
+      <details>
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </div>
+</section>
+
+<style>
+  .faq { max-width: 860px; }
+  details { border-top: 1px solid var(--border); }
+  details:last-child { border-bottom: 1px solid var(--border); }
+  summary { cursor: pointer; list-style: none; padding: 20px 44px 20px 0; font: 700 19px/1.35 var(--font-head); position: relative; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: ""; position: absolute; right: 8px; top: 50%; width: 10px; height: 10px; margin-top: -8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .2s; }
+  details[open] summary::after { transform: rotate(-135deg); margin-top: -2px; }
+  summary:hover { color: var(--gain); }
+  details p { padding: 0 0 22px; color: var(--text-2); max-width: 70ch; }
+</style>

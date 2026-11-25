@@ -1,0 +1,141 @@
+---
+import SectionHead from './SectionHead.astro';
+import Counter from './Counter.astro';
+import d from '../content/ru/shift.json';
+
+const pct = (m: number) => (m / d.plan) * 100;
+// Потери «откусывают» полосу справа: простои — крайние справа, затем скорость, затем брак.
+let right = 0;
+const segs = d.steps.map((s, i) => {
+  const seg = { ...s, right: pct(right), width: pct(s.minutes), shade: ['var(--loss)', 'var(--loss-2)', 'var(--loss-3)'][i], delay: 0.6 + i * 0.9 };
+  right += s.minutes;
+  return seg;
+});
+const lossTotal = d.steps.reduce((a, s) => a + s.minutes, 0);
+const oeeDelay = 0.6 + d.steps.length * 0.9;
+const aria = `${d.planLabel} ${d.plan} минут. ` + d.steps.map((s) => `${s.title}: минус ${s.minutes} минут, ${s.factorLabel.toLowerCase()} ${s.factor}%`).join('; ') +
+  `. ${d.usefulLabel}: ${d.useful} минуты, OEE ${d.oee}%. ${d.note}.`;
+---
+<section class="section container" id="losses" aria-labelledby="losses-h">
+  <SectionHead id="losses-h" eyebrow={d.eyebrow} title={d.title} lead={d.lead} />
+
+  <div class="shift card" data-reveal style={`--oee-d:${oeeDelay}s`}>
+    <div class="s-head">
+      <span class="s-plan">{d.planLabel}: <b class="mono">{d.plan} мин</b></span>
+      <span class="s-note mono">{d.note}</span>
+    </div>
+
+    <div class="s-bar" role="img" aria-label={aria}>
+      <div class="s-useful"></div>
+      {segs.map((s) => (
+        <div class="s-seg" style={`right:${s.right}%;width:${s.width}%;background:${s.shade};--d:${s.delay}s`}></div>
+      ))}
+    </div>
+    <div class="s-ticks" aria-hidden="true">
+      {segs.map((s) => (
+        <span class="mono" style={`right:${s.right}%;width:${s.width}%;--d:${s.delay + 0.3}s`}>−{s.minutes}</span>
+      ))}
+    </div>
+
+    <ol class="s-steps">
+      {segs.map((s) => (
+        <li style={`--d:${s.delay}s`}>
+          <span class="s-swatch" style={`background:${s.shade}`} aria-hidden="true"></span>
+          <div>
+            <h3>{s.title}: <span class="mono s-min">−{s.minutes} мин</span></h3>
+            <p>{s.text}</p>
+            <p class="s-factor">{s.factorLabel} — <span class="mono">{s.factor}%</span></p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="s-result">
+      <div class="s-kpi"><span>{d.usefulLabel}</span><Counter class="s-kv" value={d.useful} suffix=" мин" delay={oeeDelay * 1000} /></div>
+      <div class="s-kpi"><span>{d.lossLabel}</span><Counter class="s-kv s-loss" value={lossTotal} suffix=" мин" delay={oeeDelay * 1000} /></div>
+      <div class="s-kpi s-oee">
+        <span>{d.oeeLabel}</span>
+        <span class="s-kv mono">
+          {d.steps.map((s, i) => <>{i > 0 && ' × '}{s.factor}%</>)} = <b>{d.oee}%</b>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wh">
+    <h3>{d.warehouse.title}</h3>
+    <p class="lead">{d.warehouse.lead}</p>
+    <ul class="wh-grid">
+      {d.warehouse.items.map((w) => (
+        <li class="card">
+          <span class="wh-mark" aria-hidden="true"></span>
+          <h4>{w.title}</h4>
+          <p>{w.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .shift { display: flex; flex-direction: column; gap: 20px; }
+  .s-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; }
+  .s-plan { font: 700 18px/1.3 var(--font-head); }
+  .s-plan b { font-weight: 600; }
+  .s-note { font-size: 12px; color: var(--muted); }
+  .s-bar { position: relative; height: 48px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+  .s-useful { position: absolute; inset: 0; background: var(--text-2); opacity: .85; }
+  .s-seg { position: absolute; top: 0; bottom: 0; transform-origin: right; }
+  .s-ticks { position: relative; height: 20px; margin-top: -12px; font-size: 13px; color: var(--muted); }
+  .s-ticks span { position: absolute; top: 0; display: flex; justify-content: center; white-space: nowrap; }
+  .s-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .s-steps li { display: flex; gap: 12px; }
+  .s-swatch { width: 12px; height: 12px; border-radius: 3px; margin-top: 6px; flex: none; }
+  .s-steps h3 { font-size: 18px; margin-bottom: 6px; }
+  .s-min { color: var(--loss); font-weight: 600; font-size: 16px; }
+  .s-steps p { font-size: 15px; color: var(--text-2); }
+  .s-factor { margin-top: 8px; color: var(--muted) !important; font-size: 14px !important; }
+  .s-result { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 16px; border-top: 1px solid var(--border); padding-top: 18px; }
+  .s-kpi { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .s-kpi > span:first-child { font-size: 12px; color: var(--muted); }
+  .s-kpi :global(.s-kv) { font-size: 22px; font-weight: 600; line-height: 1.3; }
+  .s-kpi :global(.s-loss) { color: var(--loss); }
+  .s-oee b { font-weight: 600; color: var(--text); }
+  .s-oee .s-kv { color: var(--text-2); }
+
+  .wh { margin-top: 56px; display: flex; flex-direction: column; gap: 12px; }
+  .wh h3 { font-size: 24px; }
+  .wh-grid { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+  .wh-grid .card { padding: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .wh-mark { width: 24px; height: 4px; border-radius: 2px; background: var(--loss); }
+  .wh-grid h4 { margin: 4px 0 0; font: 700 18px/1.3 var(--font-head); }
+  .wh-grid p { font-size: 15px; color: var(--text-2); }
+
+  /* Анимация: потери откусывают полосу по очереди, в конце — итог */
+  :global(html.js) .s-seg { transform: scaleX(0); }
+  :global(html.js) .s-ticks span, :global(html.js) .s-steps li { opacity: .25; }
+  :global(html.js) .s-result { opacity: 0; }
+  :global(html.js) .shift.is-in .s-seg { animation: bite .8s cubic-bezier(.3,.7,.2,1) var(--d) both; }
+  :global(html.js) .shift.is-in .s-ticks span,
+  :global(html.js) .shift.is-in .s-steps li { animation: on .5s ease-out var(--d) both; }
+  :global(html.js) .shift.is-in .s-result { animation: fade .6s ease-out var(--oee-d) both; }
+  @keyframes bite { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes on { from { opacity: .25; } to { opacity: 1; } }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js) .s-seg { transform: none; }
+    :global(html.js) .s-ticks span, :global(html.js) .s-steps li, :global(html.js) .s-result { opacity: 1; }
+  }
+
+  @media (max-width: 860px) {
+    .s-steps { grid-template-columns: 1fr; gap: 16px; }
+    .s-result { grid-template-columns: 1fr 1fr; }
+    .s-oee { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) {
+    .shift { padding: 20px; }
+    .s-bar { height: 40px; }
+    .s-ticks { font-size: 11px; }
+    .s-kpi :global(.s-kv) { font-size: 18px; }
+  }
+</style>

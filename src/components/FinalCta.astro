@@ -1,0 +1,30 @@
+---
+import d from '../content/ru/final.json';
+import { site, calUrl, whatsappUrl, telegramUrl, emailUrl, isPlaceholder } from '../lib/links';
+const c = site.contacts;
+---
+<section class="section container" id="contact" aria-labelledby="contact-h">
+  <div class="fin card">
+    <h2 id="contact-h">{d.title}</h2>
+    <p class="lead">{d.lead}</p>
+    <div class="fin-cta">
+      <a class="btn btn-primary btn-lg" href={calUrl} data-cal>{site.cta.final}</a>
+      <a class="btn btn-ghost" href={whatsappUrl} data-msg="wa">{d.whatsapp}</a>
+      <a class="btn btn-ghost" href={telegramUrl} data-msg="tg">{d.telegram}</a>
+    </div>
+    <p class="fin-mail">{d.email}: {isPlaceholder(c.email) ? <span class="placeholder">{c.email}</span> : <a href={emailUrl}>{c.email}</a>}</p>
+    {(isPlaceholder(site.links.cal) || isPlaceholder(c.whatsappNumber) || isPlaceholder(c.telegramUser)) && (
+      <p class="placeholder">[ВСТАВИТЬ: ссылки Cal.com, WhatsApp, Telegram в src/content/ru/site.json]</p>
+    )}
+  </div>
+</section>
+
+<style>
+  .fin { padding: clamp(28px, 5vw, 56px); display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+  .fin h2 { max-width: 24ch; }
+  .fin .lead { max-width: 60ch; }
+  .fin-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+  .btn-lg { font-size: 18px; padding: 18px 28px; }
+  .fin-mail { color: var(--muted); font-size: 15px; }
+  @media (max-width: 560px) { .fin-cta .btn { width: 100%; } }
+</style>
