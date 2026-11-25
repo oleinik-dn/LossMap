@@ -1,5 +1,12 @@
 # TODO — что нужно до запуска
 
+## Запуск (docs/deploy.md)
+- [ ] DNS в Cloudflare: A `@` и `www` → 2.29.140.100
+- [ ] Ключ для деплоя и секреты `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY` в репозитории LossMap
+- [ ] Слить PR в AI-Project-Agent (ветка `lossmap-site-caddy`), затем PR в LossMap
+- [ ] Старый сайт oeeru.netlify.app → редирект на lossmap.pro; визитку Google Sites закрыть
+- [ ] Umami — после запуска сайта (docs/deploy.md, раздел Umami)
+
 Все плейсхолдеры на сайте выглядят как `[ВСТАВИТЬ: …]` и лежат в `src/content/ru/*`.
 
 ## Контакты и ссылки — `src/content/ru/site.json`
