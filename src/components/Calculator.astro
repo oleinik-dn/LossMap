@@ -1,0 +1,130 @@
+---
+import SectionHead from './SectionHead.astro';
+import d from '../content/ru/calculator.json';
+import { site, calUrl } from '../lib/links';
+import { calculate, formatRange } from '../scripts/calcCore';
+
+const init = Object.fromEntries(d.fields.map((f) => [f.id, f.value])) as unknown as Parameters<typeof calculate>[0];
+const r = calculate(init);
+const fmtNum = (v: number) => String(v).replace('.', ',');
+---
+<section class="section container" id="calculator" aria-labelledby="calc-h">
+  <SectionHead id="calc-h" eyebrow={d.eyebrow} title={d.title} lead={d.lead} />
+  <div class="calc card">
+    <form class="calc-form" novalidate data-calc
+      data-err-required={d.errors.required} data-err-range={d.errors.range}>
+      {d.fields.map((f) => (
+        <div class="fld">
+          <label for={`calc-${f.id}`}>{f.label}{f.unit && <span class="unit">, {f.unit}</span>}</label>
+          <input id={`calc-${f.id}`} name={f.id} type="text"
+            inputmode={f.step === 1 ? 'numeric' : 'decimal'} autocomplete="off"
+            value={fmtNum(f.value)} data-min={f.min} data-max={f.max} data-int={f.step === 1 ? '1' : undefined}
+            aria-describedby={`calc-${f.id}-err`} />
+          <span class="err" id={`calc-${f.id}-err`} aria-live="polite"></span>
+        </div>
+      ))}
+      <p class="defaults">{d.defaultsNote}</p>
+    </form>
+
+    <div class="calc-out">
+      <p class="out-label">{d.resultLabel}</p>
+      <p class="out-val mono" aria-live="polite" aria-atomic="true">
+        <span data-out="range">{formatRange(r.low, r.high)}</span>
+        <span class="out-suf">{d.resultSuffix}</span>
+      </p>
+      <p class="out-note">{d.resultNote}</p>
+      <p class="out-warn" data-out="invalid" hidden>{d.invalid}</p>
+      <p class="out-cap" data-out="cap" hidden={!r.capped || r.atCap}>{d.capNote}</p>
+      <p class="out-cap" data-out="atcap" hidden={!r.atCap}>{d.atCapNote}</p>
+      <div class="formula">
+        <p class="f-title">{d.formulaTitle}</p>
+        <p class="mono">{d.formula}</p>
+      </div>
+      <a class="btn btn-primary" href={calUrl} data-cal>{site.cta.calc}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .calc { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; }
+  .calc-form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; align-content: start; }
+  .fld { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; min-width: 0; }
+  label { font-size: 14px; color: var(--text-2); }
+  .unit { color: var(--muted); }
+  input {
+    font: 500 18px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text);
+    background: var(--surface-2); border: 1.5px solid var(--border-2); border-radius: var(--radius);
+    padding: 12px 14px; width: 100%; min-width: 0;
+  }
+  input:focus { outline: none; border-color: var(--gain); }
+  input[aria-invalid='true'] { border-color: var(--error); }
+  .err { min-height: 18px; font-size: 13px; color: var(--error); }
+  .defaults { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+  .calc-out { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; border-left: 1px solid var(--border); padding-left: 40px; }
+  .out-label { font-size: 14px; color: var(--muted); }
+  .out-val { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: clamp(28px, 3.4vw, 40px); font-weight: 600; line-height: 1.15; color: var(--gain); }
+  .out-suf { font-size: 16px; color: var(--muted); font-weight: 400; }
+  .out-note { font-size: 14px; color: var(--text-2); }
+  .out-warn { font-size: 14px; color: var(--error); }
+  .out-cap { font-size: 13px; color: var(--muted); }
+  .formula { margin: 8px 0 12px; padding: 14px 16px; background: var(--surface-2); border-radius: var(--radius); }
+  .f-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .formula .mono { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .is-stale { opacity: .4; }
+  @media (max-width: 900px) {
+    .calc { grid-template-columns: 1fr; gap: 28px; }
+    .calc-out { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: 24px; }
+  }
+  @media (max-width: 520px) {
+    .calc { padding: 20px; }
+    .calc-form { gap: 14px 12px; }
+    .calc-out .btn { width: 100%; }
+    .out-val { font-size: 24px; }
+    input { font-size: 16px; }
+  }
+</style>
+
+<script>
+  import { calculate, formatRange, parseNum, type CalcInput } from '../scripts/calcCore';
+
+  const form = document.querySelector<HTMLFormElement>('[data-calc]');
+  if (form) {
+    const root = form.closest('section')!;
+    const out = (k: string) => root.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const inputs = [...form.querySelectorAll<HTMLInputElement>('input')];
+    const fmt = (v: number) => String(v).replace('.', ',');
+
+    const validate = (el: HTMLInputElement): number | null => {
+      const v = parseNum(el.value);
+      const min = Number(el.dataset.min), max = Number(el.dataset.max);
+      const err = document.getElementById(`${el.id}-err`)!;
+      let msg = '';
+      if (Number.isNaN(v)) msg = form.dataset.errRequired!;
+      else if (v < min || v > max || (el.dataset.int && !Number.isInteger(v)))
+        msg = form.dataset.errRange!.replace('{min}', fmt(min)).replace('{max}', fmt(max));
+      err.textContent = msg;
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      return msg ? null : v;
+    };
+
+    const update = () => {
+      const vals: Record<string, number> = {};
+      let ok = true;
+      for (const el of inputs) {
+        const v = validate(el);
+        if (v === null) ok = false; else vals[el.name] = v;
+      }
+      const range = out('range');
+      out('invalid').hidden = ok;
+      range.classList.toggle('is-stale', !ok);
+      if (!ok) return;
+      const r = calculate(vals as unknown as CalcInput);
+      range.textContent = formatRange(r.low, r.high);
+      out('cap').hidden = !r.capped || r.atCap;
+      out('atcap').hidden = !r.atCap;
+    };
+
+    form.addEventListener('input', update);
+    form.addEventListener('submit', (e) => { e.preventDefault(); update(); });
+  }
+</script>
