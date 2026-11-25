@@ -1,0 +1,57 @@
+---
+import SectionHead from './SectionHead.astro';
+import d from '../content/ru/report.json';
+import { isPlaceholder } from '../lib/links';
+const pdfReady = !isPlaceholder(d.pdf);
+---
+<section class="section container" id="report" aria-labelledby="report-h">
+  <div class="rep">
+    <div class="rep-copy">
+      <SectionHead id="report-h" eyebrow={d.eyebrow} title={d.title} lead={d.lead} />
+      <ul class="rep-points">{d.points.map((p) => <li>{p}</li>)}</ul>
+      {pdfReady
+        ? <a class="btn btn-ghost" href={d.pdf} download>{d.pdfButton}</a>
+        : <p><span class="btn btn-ghost is-disabled" aria-disabled="true">{d.pdfButton}</span><br /><span class="placeholder">{d.pdf}</span></p>}
+    </div>
+    <figure class="rep-preview card">
+      <figcaption class="rp-head">
+        <span class="rp-title">{d.previewTitle}</span>
+        <span class="rp-note mono">{d.previewNote}</span>
+      </figcaption>
+      <div class="rp-table" role="table" aria-label={`${d.previewTitle}, ${d.previewNote}`}>
+        <div class="rp-row rp-th" role="row">{d.columns.map((c) => <span role="columnheader">{c}</span>)}</div>
+        {d.rows.map((r) => (
+          <div class="rp-row" role="row">
+            <span role="cell" class="rp-loss">{r.loss}</span>
+            <span role="cell" class="mono rp-min">{r.minutes}</span>
+            <span role="cell">{r.cause}</span>
+            <span role="cell">{r.action}</span>
+          </div>
+        ))}
+      </div>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .rep { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 48px; align-items: center; }
+  .rep-copy { display: flex; flex-direction: column; gap: 8px; }
+  .rep-copy :global(.section-head) { margin-bottom: 16px; }
+  .rep-points { list-style: none; margin: 0 0 24px; padding: 0; }
+  .rep-points li { padding: 10px 0 10px 22px; border-top: 1px solid var(--border); position: relative; color: var(--text-2); font-size: 16px; }
+  .rep-points li::before { content: ""; position: absolute; left: 0; top: 19px; width: 10px; height: 2px; background: var(--gain); }
+  .is-disabled { opacity: .55; cursor: not-allowed; margin-bottom: 8px; }
+  .rep-preview { margin: 0; display: flex; flex-direction: column; gap: 18px; }
+  .rp-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; }
+  .rp-title { font: 700 18px/1.3 var(--font-head); }
+  .rp-note { font-size: 12px; color: var(--muted); }
+  .rp-row { display: grid; grid-template-columns: 1.1fr .6fr 1.6fr 1.4fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); font-size: 14px; color: var(--text-2); line-height: 1.4; }
+  .rp-th { font-size: 12px; color: var(--muted); border-top: 0; padding-top: 0; }
+  .rp-loss { color: var(--text); }
+  .rp-min { color: var(--loss); font-weight: 600; }
+  @media (max-width: 560px) {
+    .rp-row { grid-template-columns: 1fr auto; }
+    .rp-th span:nth-child(n+3) { display: none; }
+    .rp-row span:nth-child(n+3) { grid-column: 1 / -1; font-size: 13px; }
+  }
+</style>

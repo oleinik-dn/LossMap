@@ -1,0 +1,7 @@
+---
+/** Текст из контента: «[ВСТАВИТЬ: …]» показывается как заметный плейсхолдер. */
+import { isPlaceholder } from '../lib/links';
+interface Props { v: string }
+const { v } = Astro.props;
+---
+{isPlaceholder(v) ? <span class="placeholder">{v}</span> : v}

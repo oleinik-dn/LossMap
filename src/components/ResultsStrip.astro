@@ -1,0 +1,25 @@
+---
+import Counter from './Counter.astro';
+import hero from '../content/ru/hero.json';
+const { results } = hero;
+---
+<section class="results container" aria-label={results.aria}>
+  {results.items.map((r) => (
+    <div class="r-item">
+      <Counter class:list={['r-num', r.accent && 'r-gain']} value={r.value} from={r.from ?? 0} decimals={r.decimals} prefix={r.prefix} suffix={r.suffix} />
+      <span class="r-cap">{r.caption}</span>
+    </div>
+  ))}
+</section>
+
+<style>
+  .results { padding-top: 28px; padding-bottom: 40px; border-top: 1px solid var(--divider); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 24px; }
+  .r-item { display: flex; flex-direction: column; gap: 4px; }
+  .r-item :global(.r-num) { font-size: 30px; font-weight: 600; line-height: 1.3; }
+  .r-item :global(.r-gain) { color: var(--gain); }
+  .r-cap { font-size: 14px; color: var(--muted); }
+  @media (max-width: 520px) {
+    .results { grid-template-columns: 1fr 1fr; gap: 20px 16px; }
+    .r-item :global(.r-num) { font-size: 24px; }
+  }
+</style>

@@ -1,0 +1,10 @@
+---
+interface Props { size?: number }
+const { size = 28 } = Astro.props;
+---
+<svg width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+  <rect x="2" y="2" width="24" height="24" rx="6" fill="none" stroke="var(--text)" stroke-width="2"></rect>
+  <rect x="7" y="15" width="3" height="7" fill="var(--text)"></rect>
+  <rect x="12.5" y="10" width="3" height="5" fill="var(--loss)"></rect>
+  <rect x="18" y="7" width="3" height="15" fill="var(--gain)"></rect>
+</svg>

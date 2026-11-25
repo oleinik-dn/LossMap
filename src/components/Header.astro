@@ -1,0 +1,53 @@
+---
+import Logo from './Logo.astro';
+import { site, calUrl } from '../lib/links';
+---
+<header class="hdr" id="top">
+  <div class="container hdr-in">
+    <a class="logo" href="/" aria-label={`${site.brand} — на главную`}>
+      <Logo />
+      <span>{site.brand}</span>
+    </a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="main-nav">
+      <span class="sr-only">{site.menuLabel}</span>
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <nav id="main-nav" class="nav" aria-label={site.navAria}>
+      {site.nav.map((i) => <a href={i.href}>{i.label}</a>)}
+    </nav>
+    <a class="btn btn-primary btn-sm hdr-cta" href={calUrl} data-cal>{site.cta.header}</a>
+  </div>
+</header>
+
+<style>
+  .hdr { position: sticky; top: 0; z-index: 50; background: rgba(11, 15, 20, .92); border-bottom: 1px solid transparent; }
+  .hdr-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 24px; }
+  @media (max-width: 960px) { .hdr-in { padding-block: 16px; } }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 800 22px/1 var(--font-head); letter-spacing: -0.02em; color: var(--text); }
+  .nav { display: flex; flex-wrap: wrap; gap: 28px; font-size: 15px; font-weight: 500; }
+  .nav a { text-decoration: none; }
+  .burger { display: none; background: none; border: 1px solid var(--border-2); border-radius: var(--radius); color: var(--text); padding: 9px; cursor: pointer; }
+  @media (max-width: 960px) {
+    .hdr-in { flex-wrap: wrap; }
+    .logo { margin-right: auto; }
+    .burger { display: inline-flex; order: 2; }
+    .hdr-cta { order: 1; }
+    .nav { display: none; order: 3; width: 100%; flex-direction: column; gap: 0; padding-top: 8px; }
+    .nav.open { display: flex; }
+    .nav a { padding: 12px 0; border-top: 1px solid var(--border); }
+  }
+  @media (max-width: 400px) {
+    .logo span { display: none; }
+    .hdr-cta { padding: 11px 14px; font-size: 14px; }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.burger');
+  const nav = document.getElementById('main-nav');
+  if (btn && nav) {
+    const set = (open: boolean) => { nav.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); };
+    btn.addEventListener('click', () => set(!nav.classList.contains('open')));
+    nav.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) set(false); });
+  }
+</script>

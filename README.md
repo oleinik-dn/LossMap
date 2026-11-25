@@ -122,7 +122,7 @@
 | Генератор | **Astro** (статический вывод) | По умолчанию на клиент уходит 0 JS, компоненты, удобная мультиязычность RU/SR |
 | Стили | Чистый CSS с переменными (токены выше) | Без зависимостей, легко править |
 | Интерактив | Маленькие «острова» на чистом TypeScript: калькулятор, анимации | Минимальный вес страницы |
-| Веб-сервер | **Caddy** в Docker на своём европейском сервере | Автоматический HTTPS (Let's Encrypt), HTTP/2–3, gzip/zstd, простой конфиг |
+| Веб-сервер | **Caddy** в Docker на своём европейском сервере (общий с ботом, см. docs/deploy.md) | Автоматический HTTPS (Let's Encrypt), HTTP/2–3, gzip/zstd, простой конфиг |
 | DNS | Cloudflare (домен куплен там) | Записи A/AAAA на IP сервера. Проксирование — по желанию; если включено, SSL-режим «Full (strict)» |
 | Запись на разбор | **Cal.com** — переход по ссылке на страницу бронирования (не встраивать iframe, чтобы на сайте не было сторонних cookies). Вопросы при записи: компания, роль, число линий, удобный мессенджер | Человек сразу выбирает время; данные для подготовки собираются сами; свой обработчик формы не нужен |
 | Мессенджеры | Кнопки `https://wa.me/<номер>?text=…` и `https://t.me/<ник>` с заготовленным первым сообщением | Для тех, кто хочет сначала спросить. В Казахстане для работы чаще WhatsApp |
@@ -141,30 +141,28 @@
 ### Структура репозитория
 
 ```
-lossmap-site/
-├─ README.md
-├─ astro.config.mjs
-├─ package.json
+LossMap/
+├─ README.md, TODO.md        # ТЗ; что осталось заполнить до запуска
+├─ astro.config.mjs, package.json
 ├─ public/
-│  ├─ fonts/            # Manrope, Inter, JetBrains Mono (woff2)
-│  ├─ og-image.png      # 1200×630 для превью ссылок
-│  ├─ favicon.svg
-│  └─ files/lossmap-example-report.pdf
+│  ├─ fonts/                 # Manrope, Inter, JetBrains Mono (woff2, кириллица + латиница)
+│  ├─ og-image.png           # 1200×630, пересборка: node scripts/og-image.cjs
+│  ├─ favicon.svg, robots.txt
+│  └─ files/                 # сюда — lossmap-example-report.pdf
 ├─ src/
-│  ├─ styles/tokens.css
-│  ├─ components/       # Header, Hero, ParetoChart, ResultsStrip, ShiftLosses,
-│  │                    # Calculator, Services, Process, Cases, Demo, Team,
-│  │                    # Pricing, Faq, FinalCta, Footer
-│  ├─ content/          # тексты, кейсы, цены, контакты (ru/, sr/) — правка без кода
-│  ├─ scripts/          # counters.ts, reveal.ts, calculator.ts, utm.ts
-│  └─ pages/
-│     ├─ index.astro    # RU
-│     ├─ sr/index.astro # SR (позже)
-│     └─ privacy.astro
-└─ deploy/
-   ├─ docker-compose.yml   # caddy (+ umami)
-   ├─ Caddyfile
-   └─ deploy.sh            # сборка → rsync dist/ на сервер → перезапуск
+│  ├─ content/ru/            # ВСЕ тексты, цены, кейсы, контакты (JSON + privacy.md) — правка без кода
+│  ├─ styles/                # tokens.css, base.css, fonts.css
+│  ├─ components/            # Header, Hero, ParetoChart, ResultsStrip, ShiftLosses, Calculator,
+│  │                         # Services, Process, Cases, ExampleReport, Demo, Team, Pricing, Faq, FinalCta, Footer
+│  ├─ scripts/               # calcCore.ts, utmCore.ts (+ тесты), counters.ts, reveal.ts, utm.ts
+│  └─ pages/                 # index.astro, privacy.astro, 404.astro, sitemap.xml.ts
+├─ scripts/                  # copy-fonts.mjs, og-image.*, check-csp.mjs
+├─ deploy/
+│  ├─ lossmap.caddy          # домены, CSP, кэш, редиректы — подключается в Caddy бота
+│  ├─ deploy.sh              # сборка → rsync на сервер → caddy reload
+│  └─ umami/                 # статистика — отдельным шагом позже
+├─ .github/workflows/deploy.yml  # автодеплой при слиянии в main
+└─ docs/                     # deploy.md, utm.md, design/, claude-code-prompt.md
 ```
 
 ### Локальный запуск
@@ -172,21 +170,13 @@ lossmap-site/
 ```bash
 npm install
 npm run dev        # http://localhost:4321
+npm test           # тесты калькулятора и UTM
 npm run build      # статический сайт в dist/
 ```
 
 ### Деплой
 
-```bash
-# на сервере один раз
-cd /opt/lossmap && docker compose up -d
-
-# каждый релиз (локально или через GitHub Actions)
-npm run build
-rsync -avz --delete dist/ user@SERVER:/opt/lossmap/site/
-```
-
-Секреты (пароль Umami, ключи сервера) лежат в `.env` на сервере, в репозиторий не попадают.
+Сайт отдаёт Caddy проекта бота на том же сервере; слияние PR в `main` выкладывает сайт автоматически (GitHub Actions). Первый запуск, откат, Umami — в [`docs/deploy.md`](docs/deploy.md). UTM-метки для каналов — в [`docs/utm.md`](docs/utm.md).
 
 ## 8. Требования к качеству
 
@@ -211,3 +201,5 @@ rsync -avz --delete dist/ user@SERVER:/opt/lossmap/site/
 - [ ] Решение о гарантии («если потерь меньше стоимости аудита — вернём деньги»): да или нет
 - [ ] Реалистичная разбивка простоев для Парето на первом экране (сейчас условный пример)
 - [ ] Старый сайт oeeru.netlify.app → редирект на lossmap.pro; визитку Google Sites закрыть
+
+Актуальный список с путями к файлам — в [`TODO.md`](TODO.md).
