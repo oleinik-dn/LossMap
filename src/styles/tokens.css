@@ -1,0 +1,30 @@
+/* Дизайн-токены — README §6. Правка цветов только здесь. */
+:root {
+  --bg:        #0B0F14;  /* фон */
+  --surface:   #121820;  /* карточки, панели */
+  --surface-2: #1A222C;  /* дорожки графиков, поля ввода */
+  --border:    #222B36;
+  --border-2:  #2E3742;  /* рамка второстепенной кнопки (эталон) */
+  --divider:   #1C242E;  /* линия над полосой результатов (эталон) */
+  --text:      #E8EBEF;
+  --text-2:    #B8C0CA;  /* подзаголовки */
+  --muted:     #9AA3AE;  /* подписи, ≥4.5:1 на --bg */
+  --loss:      #F59E0B;  /* потери (янтарь) */
+  --loss-2:    #D97F06;
+  --loss-3:    #B86A08;
+  --loss-4:    #8A5309;  /* 5-я полоса Парето (эталон) */
+  --gain:      #2DD4BF;  /* найденные деньги, главные кнопки */
+  --on-gain:   #0B0F14;  /* текст на бирюзовой кнопке */
+  --radius:    10px;     /* кнопки */
+  --radius-lg: 16px;     /* карточки */
+
+  --font-head: Manrope, system-ui, sans-serif;
+  --font-body: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --container: 1280px;
+  --gutter:    32px;
+}
+@media (max-width: 640px) {
+  :root { --gutter: 20px; }
+}
