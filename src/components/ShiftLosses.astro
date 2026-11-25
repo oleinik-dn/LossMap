@@ -39,8 +39,8 @@ const aria = `${d.planLabel} ${d.plan} минут. ` + d.steps.map((s) => `${s.t
 
     <ol class="s-steps">
       {segs.map((s) => (
-        <li style={`--d:${s.delay}s`}>
-          <span class="s-swatch" style={`background:${s.shade}`} aria-hidden="true"></span>
+        <li>
+          <span class="s-swatch" style={`background:${s.shade};--d:${s.delay}s`} aria-hidden="true"></span>
           <div>
             <h3>{s.title}: <span class="mono s-min">−{s.minutes} мин</span></h3>
             <p>{s.text}</p>
@@ -113,18 +113,21 @@ const aria = `${d.planLabel} ${d.plan} минут. ` + d.steps.map((s) => `${s.t
 
   /* Анимация: потери откусывают полосу по очереди, в конце — итог */
   :global(html.js) .s-seg { transform: scaleX(0); }
-  :global(html.js) .s-ticks span, :global(html.js) .s-steps li { opacity: .25; }
+  :global(html.js) .s-ticks span { opacity: 0; }
+  :global(html.js) .s-swatch { transform: scale(0); }
   :global(html.js) .s-result { opacity: 0; }
   :global(html.js) .shift.is-in .s-seg { animation: bite .8s cubic-bezier(.3,.7,.2,1) var(--d) both; }
-  :global(html.js) .shift.is-in .s-ticks span,
-  :global(html.js) .shift.is-in .s-steps li { animation: on .5s ease-out var(--d) both; }
+  :global(html.js) .shift.is-in .s-ticks span { animation: on .5s ease-out var(--d) both; }
+  :global(html.js) .shift.is-in .s-swatch { animation: pop .4s ease-out var(--d) both; }
   :global(html.js) .shift.is-in .s-result { animation: fade .6s ease-out var(--oee-d) both; }
   @keyframes bite { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  @keyframes on { from { opacity: .25; } to { opacity: 1; } }
+  @keyframes on { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     :global(html.js) .s-seg { transform: none; }
-    :global(html.js) .s-ticks span, :global(html.js) .s-steps li, :global(html.js) .s-result { opacity: 1; }
+    :global(html.js) .s-ticks span, :global(html.js) .s-result { opacity: 1; }
+    :global(html.js) .s-swatch { transform: none; }
   }
 
   @media (max-width: 860px) {

@@ -4,10 +4,31 @@ import '../styles/tokens.css';
 import '../styles/base.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site } from '../lib/links';
+import { site, isPlaceholder } from '../lib/links';
 
-interface Props { title?: string; description?: string }
-const { title = site.title, description = site.description } = Astro.props;
+interface Props { title?: string; description?: string; noindex?: boolean; jsonLd?: boolean }
+const { title = site.title, description = site.description, noindex = false, jsonLd = false } = Astro.props;
+const seo = site.seo;
+// build.format = 'file': /index.html → /, /privacy.html → /privacy
+const path = Astro.url.pathname.replace(/(index)?\.html$/, '').replace(/(.)\/$/, '$1');
+const canonical = new URL(path, seo.siteUrl).toString();
+const ogImage = new URL(seo.ogImage, seo.siteUrl).toString();
+const srUrl = new URL('/sr/', seo.siteUrl).toString();
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.brand,
+  url: seo.siteUrl,
+  logo: new URL('/favicon.svg', seo.siteUrl).toString(),
+  image: ogImage,
+  description: site.description,
+  areaServed: seo.areaServed.map((name) => ({ '@type': 'Country', name })),
+  availableLanguage: ['ru', 'sr'],
+  knowsAbout: seo.knowsAbout,
+  ...(isPlaceholder(site.contacts.email) ? {} : { email: site.contacts.email }),
+};
+const umami = site.analytics;
 ---
 <!doctype html>
 <html lang={site.lang}>
@@ -17,10 +38,32 @@ const { title = site.title, description = site.description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="alternate" hreflang="ru" href={canonical} />
+    {seo.srReady && <link rel="alternate" hreflang="sr" href={srUrl} />}
+    <link rel="alternate" hreflang="x-default" href={canonical} />
     <meta name="theme-color" content="#0B0F14" />
+    <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.brand} />
+    <meta property="og:locale" content={seo.locale} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={seo.ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="preload" href="/fonts/manrope-cyrillic-800-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-cyrillic-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+    {umami.umamiSrc && umami.umamiWebsiteId && (
+      <script is:inline defer src={umami.umamiSrc} data-website-id={umami.umamiWebsiteId}></script>
+    )}
   </head>
   <body>
     <a class="skip-link" href="#main">{site.skipLink}</a>

@@ -4,11 +4,26 @@
   "title": "LossMap — аудит потерь на пищевых производствах",
   "description": "Находим потери в данных 1С, Excel и журналов смен и вместе с вашей командой доводим их до денег. Бесплатный 20-минутный разбор.",
   "nav": [
-    { "label": "Услуги", "href": "#services" },
-    { "label": "Кейсы", "href": "#cases" },
-    { "label": "Как работаем", "href": "#process" },
-    { "label": "Стоимость", "href": "#pricing" },
-    { "label": "Вопросы", "href": "#faq" }
+    {
+      "label": "Услуги",
+      "href": "#services"
+    },
+    {
+      "label": "Кейсы",
+      "href": "#cases"
+    },
+    {
+      "label": "Как работаем",
+      "href": "#process"
+    },
+    {
+      "label": "Стоимость",
+      "href": "#pricing"
+    },
+    {
+      "label": "Вопросы",
+      "href": "#faq"
+    }
   ],
   "navAria": "Основное меню",
   "menuLabel": "Меню",
@@ -34,5 +49,34 @@
   "footer": {
     "copyright": "© {year} LossMap",
     "privacy": "Политика конфиденциальности"
+  },
+  "seo": {
+    "siteUrl": "https://lossmap.pro",
+    "ogImage": "/og-image.png",
+    "ogImageAlt": "LossMap — ваши данные уже знают, где теряются деньги",
+    "locale": "ru_RU",
+    "srReady": false,
+    "areaServed": [
+      "Казахстан",
+      "Кыргызстан",
+      "Армения",
+      "Грузия",
+      "Азербайджан",
+      "Молдова",
+      "Узбекистан",
+      "Сербия"
+    ],
+    "knowsAbout": [
+      "OEE",
+      "Аудит потерь",
+      "Снижение простоев",
+      "Учёт простоев",
+      "Пищевое производство"
+    ]
+  },
+  "analytics": {
+    "_comment": "Umami на своём сервере. Пусто — скрипт не подключается.",
+    "umamiSrc": "",
+    "umamiWebsiteId": ""
   }
 }
