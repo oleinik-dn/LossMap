@@ -1,0 +1,45 @@
+# Umami (статистика без cookies) — НЕ запускается на первом этапе. См. docs/deploy.md, раздел «Umami».
+# Сервер: /opt/lossmap/umami/docker-compose.yml + .env (из .env.example рядом).
+# Подключается к сети проекта бота, чтобы общий Caddy проксировал stats.lossmap.pro → umami:3000.
+
+services:
+  umami:
+    # Версию закрепить после первого запуска: docker compose images → подставить тег.
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: lossmap-umami
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD}@lossmap-umami-db:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: ${UMAMI_APP_SECRET}
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    networks: [default, shared]
+    mem_limit: 512m
+
+  umami-db:
+    image: postgres:16-alpine
+    container_name: lossmap-umami-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD}
+    volumes:
+      - umami_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 256m
+
+networks:
+  shared:
+    external: true
+    # Имя сети проекта бота — проверить: docker network ls (обычно ai-project-agent_default)
+    name: ${SHARED_NETWORK:-ai-project-agent_default}
+
+volumes:
+  umami_db:

@@ -30,4 +30,5 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+          CADDY_CONTAINER: ${{ vars.CADDY_CONTAINER || 'ai-project-agent-caddy-1' }}
         run: ./deploy/deploy.sh

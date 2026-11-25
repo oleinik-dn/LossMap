@@ -1,0 +1,6 @@
+# Подключить вместе с Umami: скопировать в /opt/lossmap/caddy/ и сделать caddy reload.
+stats.lossmap.pro {
+	import lossmap_security
+	encode zstd gzip
+	reverse_proxy lossmap-umami:3000
+}
