@@ -29,5 +29,8 @@ const { title = site.title, description = site.description } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <script>
+      import '../scripts/utm';
+    </script>
   </body>
 </html>
