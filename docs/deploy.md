@@ -3,9 +3,9 @@
 Сервер Hetzner `2.29.140.100`. Порты 80/443 занимает Caddy проекта бота (`ai-project-agent-caddy-1`, конфиг — `/opt/bot/deploy/`). Сайт LossMap подключается к **этому же Caddy**, второй Caddy не ставим.
 
 ```
-/opt/bot/deploy/                 проект бота (не наш)
-├─ docker-compose.yml            + 2 строки volumes у caddy (шаг 2)
-└─ Caddyfile                     + 1 строка import (шаг 2)
+/opt/bot/deploy/                 проект бота (репозиторий AI-Project-Agent, деплой через его CI)
+├─ docker-compose.yml            + 2 строки volumes у caddy (шаг 5)
+└─ Caddyfile                     + 1 строка import (шаг 5)
 
 /opt/lossmap/                    наш сайт
 ├─ site/                         собранный сайт → в контейнере /srv/lossmap
@@ -15,98 +15,73 @@
 
 Все правила сайта (CSP, кэш, редиректы) живут в нашем репозитории (`deploy/lossmap.caddy`) и выкладываются `deploy.sh`. В файлы бота вносится только подключение — один раз.
 
-## Шаг 1. Проверки на сервере
+## Шаг 1. Папки на сервере (один раз)
 
 ```bash
-cd /opt/bot && git status --short && git remote -v
+mkdir -p /opt/lossmap/site /opt/lossmap/caddy
 ```
 
-Если `/opt/bot` — git-репозиторий и бот обновляется через `git pull` или CI, правки шага 2 нужно **внести в репозиторий бота** (`deploy/docker-compose.yml` и `deploy/Caddyfile`), иначе следующий деплой бота их сотрёт.
+## Шаг 2. DNS в Cloudflare
 
-```bash
-grep -n "lossmap" /opt/bot/deploy/Caddyfile
-```
-
-Должен найтись только `calc.lossmap.pro`. Если там уже есть блок `lossmap.pro` или `www.lossmap.pro` — сначала удалить его, иначе Caddy не примет конфиг.
-
-## Шаг 2. Подключить сайт к Caddy бота (один раз)
-
-1. Папки:
-   ```bash
-   mkdir -p /opt/lossmap/site /opt/lossmap/caddy
-   ```
-2. Бэкап файлов бота:
-   ```bash
-   cp /opt/bot/deploy/docker-compose.yml /opt/bot/deploy/docker-compose.yml.bak
-   ```
-   ```bash
-   cp /opt/bot/deploy/Caddyfile /opt/bot/deploy/Caddyfile.bak
-   ```
-3. В `/opt/bot/deploy/docker-compose.yml`, сервис `caddy`, в список `volumes:` добавить две строки:
-   ```yaml
-         - /opt/lossmap/site:/srv/lossmap:ro
-         - /opt/lossmap/caddy:/etc/caddy/lossmap:ro
-   ```
-4. В **конец** `/opt/bot/deploy/Caddyfile` добавить строку:
-   ```
-   import /etc/caddy/lossmap/*.caddy
-   ```
-5. Проверить compose:
-   ```bash
-   cd /opt/bot/deploy && docker compose config --quiet && echo ok
-   ```
-
-Пересоздавать Caddy пока не нужно — сначала выложим сайт (шаг 4), чтобы проверить конфиг целиком до переключения.
-
-## Шаг 3. DNS в Cloudflare
-
-Посмотрите, как сделана запись `calc` (облако оранжевое или серое) — новые сделайте так же. Если оранжевое, в SSL/TLS должен быть режим **Full (strict)**.
+Новые записи — так же, как у `calc` (облако оранжевое или серое). Если оранжевое, в SSL/TLS режим **Full (strict)**.
 
 | Тип | Имя | Значение |
 |---|---|---|
 | A | `@` (lossmap.pro) | `2.29.140.100` |
 | A | `www` | `2.29.140.100` |
-| AAAA | `@` | `2a01:4f9:c014:e66c::1` |
-| AAAA | `www` | `2a01:4f9:c014:e66c::1` |
+| AAAA | `@`, `www` | `2a01:4f9:c014:e66c::1` — только если AAAA есть у `calc` |
 
-AAAA добавляйте, только если для `calc` она тоже есть (и `calc` работает по IPv6). Проверка через пару минут:
+## Шаг 3. Выложить сайт (с вашего компьютера)
 
-```bash
-dig +short lossmap.pro
-```
-
-## Шаг 4. Первая выкладка (с вашего компьютера)
-
-Нужны Node 22, rsync, ssh. В корне репозитория:
+Нужны Node 22, rsync, ssh. В корне репозитория LossMap:
 
 ```bash
 cp deploy/.env.deploy.example deploy/.env.deploy
-```
-
-Значения там уже под ваш сервер (`root@2.29.140.100`). Затем:
-
-```bash
 ./deploy/deploy.sh
 ```
 
-Скрипт соберёт сайт, выложит его в `/opt/lossmap/site/`, конфиг — в `/opt/lossmap/caddy/`, и сделает `caddy reload`. На первом запуске reload ничего не изменит (Caddy ещё не видит наши папки) — это нормально.
+Сайт ляжет в `/opt/lossmap/site/`, конфиг — в `/opt/lossmap/caddy/`. Caddy бота их пока не видит — это нормально.
 
-## Шаг 5. Включить (на сервере)
+## Шаг 4. Проверить конфиг заранее (на сервере)
 
-1. Проверить полный конфиг **во временном контейнере** — работающий Caddy не трогается:
-   ```bash
-   cd /opt/bot/deploy && docker compose run --rm --no-deps caddy caddy validate --config /etc/caddy/Caddyfile
-   ```
-   Должно быть `Valid configuration`. Если ошибка — исправить, бот и калькулятор пока работают как раньше.
-2. Пересоздать только Caddy (перерыв для бота-web и calc — несколько секунд):
-   ```bash
-   docker compose up -d --no-deps caddy
-   ```
-3. Смотреть, как выдаются сертификаты:
-   ```bash
-   docker compose logs -f --since 2m caddy
-   ```
-   Ждать `certificate obtained successfully` для `lossmap.pro` и `www.lossmap.pro`. Выход — Ctrl+C.
+Временный Caddy с будущим конфигом; работающий не трогается:
+
+```bash
+cp /opt/bot/deploy/Caddyfile /tmp/Caddyfile.test && echo 'import /etc/caddy/lossmap/*.caddy' >> /tmp/Caddyfile.test
+docker run --rm --env-file /opt/bot/.env -v /tmp/Caddyfile.test:/etc/caddy/Caddyfile:ro -v /opt/lossmap/caddy:/etc/caddy/lossmap:ro caddy:2.11-alpine caddy validate --config /etc/caddy/Caddyfile
+```
+
+Должно быть `Valid configuration`.
+
+## Шаг 5. Подключить в репозитории бота (AI-Project-Agent)
+
+Правки — в репозитории бота, не на сервере: сервер обновляется из GitHub, ручные правки сотрёт следующий деплой бота.
+
+`deploy/docker-compose.yml`, сервис `caddy` → `volumes:` (две последние строки — новые):
+
+```yaml
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+      - /opt/lossmap/site:/srv/lossmap:ro
+      - /opt/lossmap/caddy:/etc/caddy/lossmap:ro
+```
+
+`deploy/Caddyfile` — в самый конец:
+
+```
+# Сайт lossmap.pro (репозиторий LossMap): конфиг и файлы кладёт его deploy.sh в /opt/lossmap/
+import /etc/caddy/lossmap/*.caddy
+```
+
+Commit → push в ветку, с которой деплоит CI бота. CI пересоздаст Caddy (перерыв для calc — несколько секунд) и Caddy получит сертификаты для lossmap.pro и www. Логи:
+
+```bash
+cd /opt/bot/deploy && docker compose logs -f --since 5m caddy
+```
+
+Ждать `certificate obtained successfully` для `lossmap.pro` и `www.lossmap.pro`.
 
 ## Шаг 6. Проверить
 
@@ -117,11 +92,7 @@ cp deploy/.env.deploy.example deploy/.env.deploy
 
 ## Если что-то пошло не так
 
-Вернуть Caddy бота в исходное состояние:
-
-```bash
-cd /opt/bot/deploy && cp Caddyfile.bak Caddyfile && cp docker-compose.yml.bak docker-compose.yml && docker compose up -d --no-deps caddy
-```
+Откатить коммит в репозитории бота (git revert) и дать CI задеплоить. Бот и calc от сайта не зависят: пустая папка `/opt/lossmap/caddy` ничего не ломает.
 
 - Нет сертификата — `dig` должен показывать IP сервера; если облако оранжевое, временно сделайте серым.
 - Бесконечный редирект при оранжевом облаке — режим SSL/TLS не Flexible, а Full (strict).
