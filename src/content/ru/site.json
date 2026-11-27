@@ -40,7 +40,7 @@
     "privacy": "/privacy"
   },
   "contacts": {
-    "email": "[ВСТАВИТЬ: email на домене, например team@lossmap.pro]",
+    "email": "team@lossmap.pro",
     "whatsappNumber": "[ВСТАВИТЬ: номер WhatsApp в формате 77001234567]",
     "whatsappText": "Здравствуйте! Хочу обсудить разбор потерь на нашем производстве.",
     "telegramUser": "[ВСТАВИТЬ: ник Telegram без @]",
